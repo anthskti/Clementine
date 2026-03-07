@@ -56,7 +56,7 @@ class PortfolioSummary(BaseModel):
 # Garden Response
 class PlantType(str, Enum):
     TRIM = "time_to_trim"           # dominant, oversized position
-    WEED = "weed"                   # bad investment
+    WEED = "weed"                   # bad investment (too high risk)
     WILTING = "wilting"             # dropping, no DCA
     OVERWATERED = "overwatered"     # too much DCA
     DEAD = "dead_plant"             # unsalvageable
