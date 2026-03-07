@@ -88,6 +88,16 @@ export default function GardenPage() {
             </div>
           ))}
 
+          {/* Clementine with Watering Can (Left Side) */}
+          <div className="absolute left-10 bottom-10 hover:scale-105 transition-transform">
+            <Image
+              src="/assets/photos/clementine_with_watering_can.png"
+              alt="Clementine with watering can"
+              width={300}
+              height={300}
+            />
+          </div>
+
           {/* Closed Book Trigger (Bottom Right Corner) */}
           <button
             onClick={() => setIsBookOpen(true)}
@@ -133,7 +143,8 @@ export default function GardenPage() {
             />
 
             {/* Left Page */}
-            <div className="relative z-10 w-1/2 h-full p-10 pr-8 flex flex-col items-center justify-center">
+
+            <div className="relative z-10 w-1/2 h-full flex flex-col items-center justify-center">
               <h2 className="text-2xl font-serif text-amber-900 mb-4 text-center">
                 {analysisData.summary.investor_type}
               </h2>

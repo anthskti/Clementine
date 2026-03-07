@@ -8,8 +8,13 @@ export const getMockPortfolio = async (): Promise<Portfolio> => {
   return res.json();
 };
 
-export const getCSVPortfolio = async (): Promise<Portfolio> => {
-  const res = await fetch(`${API_BASE}/portfolio/CSV`, { method: "POST" });
+export const getCSVPortfolio = async (
+  formData: FormData,
+): Promise<Portfolio> => {
+  const res = await fetch(`${API_BASE}/portfolio/csv`, {
+    method: "POST",
+    body: formData,
+  });
   if (!res.ok) throw new Error("Failed to fetch CSV portfolio");
   return res.json();
 };

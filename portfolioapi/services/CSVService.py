@@ -19,17 +19,24 @@ class CSVService:
         if not rows:
             raise ValueError("CSV is empty.")
 
-        required = {"symbol", "market_value"}
-        if not required.issubset(set(rows[0].keys())):
-            raise ValueError(f"CSV must include columns: {required}")
+        # Validate required Questrade columns
+        required = {"Ticker", "Shares", "Market Value"}
+        actual = set(rows[0].keys())
+        if not required.issubset(actual):
+            raise ValueError(f"CSV must include columns: {required}. Got: {actual}")
 
         positions_raw = []
         for row in rows:
+            # Clean market value — remove commas if present
+            raw_value = row["Market Value"].replace(",", "").strip()
+            market_value = float(raw_value)
+            quantity = float(row["Shares"]) if row.get("Shares") else None
+
             positions_raw.append({
-                "symbol": row["symbol"].strip().upper(),
-                "market_value": float(row["market_value"]),
-                "quantity": float(row["quantity"]) if "quantity" in row and row["quantity"] else None,
-                "currency": row.get("currency", "CAD").strip(),
+                "symbol": row["Ticker"].strip().upper(),
+                "market_value": market_value,
+                "quantity": quantity,
+                "currency": "CAD",  # Questrade exports are CAD by default
             })
 
         portfolio_value = sum(p["market_value"] for p in positions_raw)

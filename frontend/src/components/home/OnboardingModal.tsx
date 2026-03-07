@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   getMockPortfolio,
@@ -29,6 +29,9 @@ export default function OnboardingModal({
   const router = useRouter();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
+  const [loadingQuestrade, setLoadingQuestrade] = useState(false);
+  const [loadingCSV, setLoadingCSV] = useState(false);
+  const csvFileInputRef = useRef<HTMLInputElement>(null);
   const [survey, setSurvey] = useState<InvestorSurvey>({
     age: 25,
     risk_tolerance: "medium",
@@ -46,6 +49,44 @@ export default function OnboardingModal({
     } catch (error) {
       console.error(error);
       alert("Failed to load mock data. Is the backend running?");
+    }
+  };
+
+  const handleLoadQuestrade = async () => {
+    setLoadingQuestrade(true);
+    try {
+      const data = await getQuestradePortfolio();
+      setPortfolio(data);
+    } catch (error) {
+      console.error(error);
+      alert("Failed to load Questrade portfolio. Make sure you're connected.");
+    } finally {
+      setLoadingQuestrade(false);
+    }
+  };
+
+  const handleLoadCSV = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setLoadingCSV(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = getCSVPortfolio(file);
+
+      if (!res.ok) throw new Error("Failed to parse CSV");
+      const data = await res.json();
+      setPortfolio(data);
+    } catch (error) {
+      console.error(error);
+      alert("Failed to load CSV. Please check the file format.");
+    } finally {
+      setLoadingCSV(false);
+      if (csvFileInputRef.current) {
+        csvFileInputRef.current.value = "";
+      }
     }
   };
 
@@ -112,15 +153,35 @@ export default function OnboardingModal({
                   <button
                     onClick={handleLoadMock}
                     className={`p-3 rounded-lg border text-sm font-semibold transition-colors ${portfolio ? "bg-green-100 border-green-500 text-green-800" : "bg-gray-50 hover:bg-gray-100"}`}
+                    disabled={isAnalyzing}
                   >
                     {portfolio ? "Mock Loaded ✓" : "Use Mock Data"}
                   </button>
                   <button className="p-3 rounded-lg border bg-gray-50 text-gray-400 text-sm cursor-not-allowed">
                     Questrade
                   </button>
-                  <button className="p-3 rounded-lg border bg-gray-50 text-gray-400 text-sm cursor-not-allowed">
-                    Upload CSV
-                  </button>
+                  <div>
+                    <input
+                      ref={csvFileInputRef}
+                      type="file"
+                      accept=".csv"
+                      onChange={handleLoadCSV}
+                      className="hidden"
+                    />
+                    <button
+                      onClick={() => csvFileInputRef.current?.click()}
+                      disabled={loadingCSV || isAnalyzing}
+                      className={`w-full p-3 rounded-lg border text-sm font-semibold transition-colors ${
+                        loadingCSV
+                          ? "bg-blue-100 border-blue-500 text-blue-800"
+                          : portfolio
+                            ? "bg-green-100 border-green-500 text-green-800"
+                            : "bg-gray-50 hover:bg-gray-100"
+                      }`}
+                    >
+                      {loadingCSV ? "Loading..." : "Upload CSV"}
+                    </button>
+                  </div>
                 </div>
               </div>
 
