@@ -55,8 +55,8 @@ class InvestorType(str, Enum):
 
 
 class PortfolioSummary(BaseModel):
-    investor_type: str          # Name of Investor
-    summary: str                # 2–3 sentence overall read
+    investor_type: InvestorType     # Name of Investor
+    summary: str                    # 2–3 sentence overall read
     diversification: str
     sector_concentration: str
     geographic_exposure: str

@@ -37,9 +37,12 @@ Investor Profile:
 Portfolio:
 {portfolio}
 
+Investor Types and their meanings:
+{investor_types}
+
 Return this exact JSON shape:
 {{
-  "investor_type": "short label e.g. Aggressive Growth Investor",
+  "investor_type": "one of: hoarder | negligent | healthy | experimental | overwaterer",
   "summary": "2-3 sentences describing this investor and their portfolio overall",
   "diversification": "1-2 sentences on diversification quality",
   "sector_concentration": "1-2 sentences on sector concentration risk",
@@ -58,7 +61,7 @@ Plant types and their meanings:
 Given this portfolio, assign each position a plant_type and write a caption of ~20 words in the voice of a gardener.
 Return ONLY a valid JSON object — no markdown, no backticks.
 
-Portfolio (max 20 positions shown):
+Portfolio (max 10 positions shown):
 {portfolio}
 
 Return this exact JSON shape:
@@ -81,9 +84,13 @@ class AnalysisService:
         return FullAnalysis(summary=summary, garden=garden)
     
     async def _get_summary(self, portfolio: Portfolio, survey: InvestorSurvey) -> PortfolioSummary:
+        investor_type_descriptions = "\n".join(
+            f" {k}: {v}" for k, v in INVESTOR_TYPE.items()
+        )
         prompt = SUMMARY_PROMPT.format(
             survey=json.dumps(survey.model_dump(), indent=2),
             portfolio=json.dumps(portfolio.model_dump(), indent=2),
+            investor_types=investor_type_descriptions,
         )
         raw = await self._call_gemini(prompt)
         return PortfolioSummary(**raw)
@@ -117,7 +124,7 @@ class AnalysisService:
             response.raise_for_status()
         
         raw_text = response.json()["candidates"][0]["content"]["parts"][0]["text"]
-        print("RAW GEMINI RESPONSE:", raw_text)
+        # print("RAW GEMINI RESPONSE:", raw_text)
         cleaned = raw_text.strip().removeprefix("```json").removesuffix("```").strip()
         
         return json.loads(cleaned)

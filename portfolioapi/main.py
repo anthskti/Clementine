@@ -8,7 +8,7 @@ app = FastAPI(title="ClementineAPI", version="1.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"], # Update for live
+    allow_origins=[settings.frontend_origin],
     allow_methods=["*"],
     allow_headers=["*"],
 )
