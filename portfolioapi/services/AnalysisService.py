@@ -8,7 +8,7 @@ from core.config import settings
 import asyncio
 
 
-GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
+GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
 
 PLANT_TYPES = {
     "time_to_trim": "dominant position towering over the rest, crowding out diversity",
@@ -89,9 +89,9 @@ class AnalysisService:
         return PortfolioSummary(**raw)
     
     async def _get_garden(self, portfolio: Portfolio) -> PortfolioGarden:
-        # Cap to 20 flowers
+        # Cap to 10 flowers
         trimmed = portfolio.model_dump()
-        trimmed["positions"] = trimmed["positions"][:20]
+        trimmed["positions"] = trimmed["positions"][:10]
 
         plant_type_descriptions = "\n".join(
             f" {k}: {v}" for k, v in PLANT_TYPES.items()
@@ -111,12 +111,13 @@ class AnalysisService:
                 params={"key": settings.gemini_api_key},
                 json={
                     "contents": [{"parts": [{"text": prompt}]}],
-                    "generationConfig": {"temperature": 0.8, "maxOutputTokens": 1024},
+                    "generationConfig": {"temperature": 0.8, "maxOutputTokens": 4096},
                 },
             )
             response.raise_for_status()
         
-        raw_text = response.json()["candidates"][0]["parts"][0]["text"]
+        raw_text = response.json()["candidates"][0]["content"]["parts"][0]["text"]
+        print("RAW GEMINI RESPONSE:", raw_text)
         cleaned = raw_text.strip().removeprefix("```json").removesuffix("```").strip()
         
         return json.loads(cleaned)
