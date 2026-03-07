@@ -29,7 +29,7 @@ This survery includes the users:\
 With all of the investment information, Clementine will allow the user to view all of their investment positions, the health of their entire portfolio, and their gardener personality type.\
 These include:\
 • The seed hoarder which has too much cash and not enough investments\
-• The negligent gardener who has not watered or trimmed their garden\ 
+• The negligent gardener who has not watered or trimmed their garden\
 • The healthy gardener who has a balanced, healthy portfolio\
 • The experimental gardener who is invested heavy into speculative stocks\
 • The overwaterer who has too much invested in their top five stock holdings
