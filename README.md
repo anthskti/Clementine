@@ -1,5 +1,5 @@
 # Clementine | Grow your wealth
-Who said money can't grow on trees? Meet Clementine, your local AI-gardener who is here to clean up and rejuvenate your investment garden.
+Who said money can't grow on trees? Meet Clementine, an AI-gardener who is here to clean up and rejuvenate your investment garden.
 ## About
 Clementine transforms boring portfolio spreadsheets into a living, breathing garden. Each stock is represented as a plant and the users garden health depends on their portfolio's health. The master gardener, Clementine, will assess their garden and analyze what's thriving, what's dying, and what kind of investor they are.
 ## The Garden
