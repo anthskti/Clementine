@@ -60,12 +60,12 @@ export default function OnboardingModal({
       // 1. Fetch analysis from Gemini backend
       const analysis = await analyzePortfolio(portfolio, survey);
 
-      // 2. Save to session storage so the /results page can pick it up
+      // 2. Save to session storage so the /garden page can pick it up
       sessionStorage.setItem("clementine_analysis", JSON.stringify(analysis));
       sessionStorage.setItem("clementine_portfolio", JSON.stringify(portfolio));
 
-      // 3. Route to the book/results page
-      router.push("/results");
+      // 3. Route to the book/garden page
+      router.push("/garden");
     } catch (error) {
       console.error(error);
       alert("Analysis failed. Please try again.");
