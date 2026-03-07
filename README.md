@@ -6,7 +6,7 @@ Clementine transforms boring portfolio spreadsheets into a living, breathing gar
 The garden bed will reveal several types of plants depending on your stock positions.\
 This includes:\
 • Towering plants which are too tall (need to reduce position size)\
-• Weeds which are bad investments (needs to be sold)\
+• Weeds that are bad investments (needs to be sold)\
 • Wilting plants that need to be watered (dollar cost averaged to lower average cost)\
 • Overwatered plants that have been watered too much (stop dollar cost averaging and hold)\
 • Dead plants that need to be dug up (needs to be sold and funds need to be reinvested)\
@@ -16,7 +16,7 @@ Clementine will asses each plant and offer actions to improve the garden, includ
 • Watering the plant (dollar cost average)\
 • Harvesting the plant (trim investment size)\
 • Digging up and planting new seeds (sell and use funds to build a new investment)\
-• Maintaining (no work needs to be done)\
+• Maintaining (no work needs to be done)
 ## The Survey
 Clementine will also take a brief survey to assess what type of investor the user is.\
 This survery includes the users:\
