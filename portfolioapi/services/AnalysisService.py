@@ -5,6 +5,7 @@ from models.portfolio import (
     FullAnalysis, PortfolioSummary, PortfolioGarden, PlantEntry
 )
 from core.config import settings
+import asyncio
 
 
 GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
@@ -16,6 +17,14 @@ PLANT_TYPES = {
     "overwatered": "over-DCA'd stock that needs to breathe",
     "dead_plant": "unsalvageable position — time to sell and move on",
     "healthy_flower": "strong, well-maintained position performing well",
+}
+
+INVESTOR_TYPE = {
+    "hoarder": "The seed hoarder which has too much cash and not enough investments",
+    "negligent": "The negligent gardener who has not watered or trimmed their garden",
+    "healthy": "The healthy gardener who has a balanced, healthy portfolio",
+    "experimental": "The experimental gardener who is invested heavy into speculative stocks",
+    "overwaterer": "The overwaterer who has too much invested in their top five stock holdings",
 }
 
 SUMMARY_PROMPT = """
@@ -65,10 +74,10 @@ Return this exact JSON shape:
 
 class AnalysisService:
     async def analyze(self, portfolio: Portfolio, survey: InvestorSurvey) -> FullAnalysis:
-        summary, garden = await asyncio.gather(
-            self._get_summary(portfolio, survey),
-            self._get_garden(portfolio),
-        )
+        # For limits
+        summary = await self._get_summary(portfolio, survey)
+        await asyncio.sleep(4)
+        garden = await self._get_garden(portfolio)
         return FullAnalysis(summary=summary, garden=garden)
     
     async def _get_summary(self, portfolio: Portfolio, survey: InvestorSurvey) -> PortfolioSummary:
@@ -87,7 +96,7 @@ class AnalysisService:
         plant_type_descriptions = "\n".join(
             f" {k}: {v}" for k, v in PLANT_TYPES.items()
         )
-        prompt = GARDEN_PROMPT.fomrat(
+        prompt = GARDEN_PROMPT.format(
             plant_types=plant_type_descriptions,
             portfolio=json.dumps(trimmed, indent=2)
         )
@@ -112,4 +121,3 @@ class AnalysisService:
         
         return json.loads(cleaned)
     
-import asyncio

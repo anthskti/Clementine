@@ -46,6 +46,14 @@ class AnalysisRequest(BaseModel):
 
 # Gemini Summary Response
 
+class InvestorType(str, Enum):
+    HOARDER = "hoarder"             # The seed hoarder which has too much cash and not enough investments
+    NEGLIGENT = "negligent"         # The negligent gardener who has not watered or trimmed their garden
+    HEALTHY = "healthy"             # The healthy gardener who has a balanced, healthy portfolio
+    EXPERIMENTAL = "experimental"   # The experimental gardener who is invested heavy into speculative stocks
+    OVERWATERER = "overwaterer"     # The overwaterer who has too much invested in their top five stock holdings
+
+
 class PortfolioSummary(BaseModel):
     investor_type: str          # Name of Investor
     summary: str                # 2–3 sentence overall read
