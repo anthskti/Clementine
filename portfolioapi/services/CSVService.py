@@ -3,7 +3,7 @@ import io
 from models.portfolio import Portfolio, Position
 
 
-class CsvService:
+class CSVService:
     """
     Expects CSV with headers: symbol, market_value, quantity (optional), currency (optional)
     Example:

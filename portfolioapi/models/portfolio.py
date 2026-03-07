@@ -1,7 +1,8 @@
+from __future__ import annotations
+
 from pydantic import BaseModel
 from typing import Optional
 from enum import Enum
-from __future__ import Enum
 
 class Position(BaseModel):
     symbol: str
