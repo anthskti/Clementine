@@ -1,6 +1,7 @@
 import httpx
 from core.config import settings
 
+
 class QuestradeService:
     async def exchange_token(self, refresh_token: str) -> dict:
         """
