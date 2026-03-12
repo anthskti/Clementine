@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Inter } from "next/font/google";
 import "./globals.css";
 
+import Header from "@/components/Header";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -28,7 +30,10 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.className} antialiased min-full`}>
         <main className="flex flex-col min-h-screen bg-[#F8F8F8]">
-          <div className="flex flex-col flex-1 text-black">{children}</div>
+          <div className="flex flex-col flex-1 text-black">
+            <Header />
+            {children}
+          </div>
         </main>
       </body>
     </html>

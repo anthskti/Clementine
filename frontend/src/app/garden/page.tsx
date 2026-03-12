@@ -2,12 +2,8 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
-import {
-  FullAnalysis,
-  Plant,
-  FLOWER_TYPES,
-  GARDENER_TYPES,
-} from "@/types/portfolio";
+import { FullAnalysis, Plant } from "@/types/portfolio";
+import { FLOWER_TYPES, GARDENER_TYPES } from "@/types/garden";
 
 export default function GardenPage() {
   const [isBookOpen, setIsBookOpen] = useState(true);
