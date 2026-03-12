@@ -7,7 +7,7 @@ import {
   Plant,
   FLOWER_TYPES,
   GARDENER_TYPES,
-} from "@/types/types";
+} from "@/types/portfolio";
 
 export default function GardenPage() {
   const [isBookOpen, setIsBookOpen] = useState(true);

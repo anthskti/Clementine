@@ -1,45 +1,33 @@
-"use client";
-import { useState } from "react";
 import Image from "next/image";
-import OnboardingModal from "@/components/home/OnboardingModal";
+import Sign from "@/components/home/Sign";
 
 export default function Home() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
   return (
-    <div className="flex items-center justify-around min-h-screen bg-zinc-50">
+    <div className="relative flex items-center justify-around min-h-screen bg-zinc-50">
+      {/* Background Shed */}
       <Image
         src="/assets/home/homepage.jpg"
-        alt="Shed Home Page"
+        alt="HomePage"
         fill
         className="object-cover"
       />
-      <div className="flex items-center justify-around z-1">
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="relative transform transition-all duration-300 hover:scale-105"
-        >
+      {/* Main Information */}
+      <div className="flex items-center justify-content z-1 p-6">
+        {/* LEFT: Import sign information */}
+        <div>
+          <Sign />
+        </div>
+        {/* RIGHT: Image of Clementine */}
+
+        <div className="p-50">
           <Image
-            src="/assets/home/buttonfinal.png"
-            alt="Start Gardening"
-            width={400}
-            height={400}
-            className="object-cover"
+            src="/assets/photos/clementine_standing.png"
+            alt="ClementineStanding"
+            width={150}
+            height={150}
           />
-        </button>
-
-        <Image
-          src="/assets/photos/clementine_standing.png"
-          alt="clementine standing"
-          width={200}
-          height={200}
-        />
+        </div>
       </div>
-
-      <OnboardingModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      />
     </div>
   );
 }
