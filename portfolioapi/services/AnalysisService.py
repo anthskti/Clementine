@@ -77,6 +77,13 @@ Return this exact JSON shape:
 
 class AnalysisService:
     async def analyze(self, portfolio: Portfolio, survey: InvestorSurvey) -> FullAnalysis:
+        # For concurrent
+
+        # summary, garden = await asyncio.gather(
+        #     self._get_summary(portfolio, survey),
+        #     self._get_garden(portfolio)
+        # )
+        
         # For limits
         summary = await self._get_summary(portfolio, survey)
         await asyncio.sleep(4)
@@ -87,18 +94,22 @@ class AnalysisService:
         investor_type_descriptions = "\n".join(
             f" {k}: {v}" for k, v in INVESTOR_TYPE.items()
         )
+        # Locks to 15 stocks in portfolio
+        trimmed = portfolio.model_dump()
+        trimmed["positions"] = trimmed["positions"][:15]
+
         prompt = SUMMARY_PROMPT.format(
             survey=json.dumps(survey.model_dump(), indent=2),
-            portfolio=json.dumps(portfolio.model_dump(), indent=2),
+            portfolio=json.dumps(trimmed, indent=2),
             investor_types=investor_type_descriptions,
         )
         raw = await self._call_gemini(prompt)
         return PortfolioSummary(**raw)
     
     async def _get_garden(self, portfolio: Portfolio) -> PortfolioGarden:
-        # Cap to 10 flowers
+        # Cap to 15 flowers
         trimmed = portfolio.model_dump()
-        trimmed["positions"] = trimmed["positions"][:10]
+        trimmed["positions"] = trimmed["positions"][:15]
 
         plant_type_descriptions = "\n".join(
             f" {k}: {v}" for k, v in PLANT_TYPES.items()
@@ -118,14 +129,20 @@ class AnalysisService:
                 params={"key": settings.gemini_api_key},
                 json={
                     "contents": [{"parts": [{"text": prompt}]}],
-                    "generationConfig": {"temperature": 0.8, "maxOutputTokens": 4096},
+                    "generationConfig": {
+                        "temperature": 0.8, 
+                        "maxOutputTokens": 4096, 
+                        "response_mime_type": "application/json" 
+                    },
+                    
                 },
             )
             response.raise_for_status()
         
         raw_text = response.json()["candidates"][0]["content"]["parts"][0]["text"]
         # print("RAW GEMINI RESPONSE:", raw_text)
-        cleaned = raw_text.strip().removeprefix("```json").removesuffix("```").strip()
+        # cleaned = raw_text.strip().removeprefix("```json").removesuffix("```").strip()
+
         
-        return json.loads(cleaned)
+        return json.loads(raw_text)
     

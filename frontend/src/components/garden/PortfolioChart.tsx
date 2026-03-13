@@ -1,2 +1,4 @@
 import { Portfolio, Position } from "@/types/portfolio";
-export default function PortfolioChart() {}
+export default function PortfolioChart() {
+  return <div>hi</div>;
+}

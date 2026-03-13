@@ -1,5 +1,5 @@
-import { Portfolio, InvestorSurvey, FullAnalysis } from "@/types/portfolio";
-
+import { Portfolio, FullAnalysis } from "@/types/portfolio";
+import { InvestorSurvey } from "@/types/survey";
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 export const analyzePortfolio = async (
