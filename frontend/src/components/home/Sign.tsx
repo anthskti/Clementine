@@ -129,7 +129,7 @@ export default function OnboardingModal() {
           <div className="pb-3 border-b border-green-800/20 shrink-0">
             {/* Loading */}
             {isAnalyzing ? (
-              <div className="flex items-center justify-center h-full text-center">
+              <div className="flex flex-col items-center justify-center h-full text-center">
                 <Loader className="animate-spin w-12 h-12 text-green-700" />
                 <h3 className="text-xl font-bold text-green-900">
                   Clementine analysis incoming!!!

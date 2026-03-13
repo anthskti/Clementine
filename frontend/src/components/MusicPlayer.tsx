@@ -11,9 +11,9 @@ const MusicPlayer = () => {
   // Your music playlist
   const playlist = [
     {
-      title: "Sunset Bridge",
-      artist: "ATLUS Sound Team",
-      src: "/music/sunset bridge.mp3", // music file name
+      title: "PLAY COLOR", // title
+      artist: "sweetch, soon", // artist names
+      src: "/music/play_color.mp3", // music file name
     },
   ];
 
