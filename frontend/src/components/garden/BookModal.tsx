@@ -10,8 +10,8 @@ interface BookModalProps {
 }
 export default function BookModal({ analysisData, onClose }: BookModalProps) {
   return (
-    <div className="relative min-h-screen w-full p-2 bg-black/60 backdrop-blur-sm">
-      <div className="w-[90%]">
+    <div className="fixed inset-0 z-100 flex items-center justify-centers bg-black/60 backdrop-blur-sm">
+      <div className="relative w-full min-h-screen">
         <Image
           src="/assets/photos/birds_eye_view_book.png"
           alt="Open book"
@@ -23,7 +23,7 @@ export default function BookModal({ analysisData, onClose }: BookModalProps) {
       <div className="absolute inset-0 z-10 flex flex-row justify-between">
         <button
           onClick={onClose}
-          className="absolute top-6 right-6 z-20 text-zinc-600 hover:text-black transition-colors"
+          className="absolute top-6 right-6 z-20 text-white hover:text-zinc-400 transition-colors"
         >
           <X className="w-5 h-5" />
         </button>
