@@ -16,15 +16,24 @@ import {
   InvestmentHorizon,
 } from "@/types/survey";
 
-import { ChevronDown, X, Loader, Upload } from "lucide-react";
+import { ChevronDown, X, Loader, Upload, Check } from "lucide-react";
 
 export default function OnboardingModal() {
   const router = useRouter();
+
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
+
+  const [QuestradeToken, setQuestradeToken] = useState("");
   const [loadingQuestrade, setLoadingQuestrade] = useState(false);
+
   const [loadingCSV, setLoadingCSV] = useState(false);
   const csvFileInputRef = useRef<HTMLInputElement>(null);
+
+  const [activeMethod, setActiveMethod] = useState<
+    "mock" | "questrade" | "csv" | null
+  >(null);
+
   const [survey, setSurvey] = useState<InvestorSurvey>({
     age: 25,
     risk_tolerance: "medium",
@@ -44,9 +53,10 @@ export default function OnboardingModal() {
   };
 
   const handleLoadQuestrade = async () => {
+    if (!QuestradeToken) return;
     setLoadingQuestrade(true);
     try {
-      const data = await getQuestradePortfolio();
+      const data = await getQuestradePortfolio(QuestradeToken);
       setPortfolio(data);
     } catch (error) {
       console.error(error);
@@ -55,25 +65,17 @@ export default function OnboardingModal() {
       setLoadingQuestrade(false);
     }
   };
-
-  const handleLoadCSV = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    const formData = new FormData();
-    formData.append("file", file);
+  const handleLoadCSV = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
     if (!file) return;
-
-    setLoadingCSV(true);
     try {
-      const data = await getCSVPortfolio(file);
-      setPortfolio(data);
+      setLoadingCSV(true);
+      const formData = new FormData();
+      formData.append("file", file); // To match the backend API
     } catch (error) {
-      console.error(error);
-      alert("Failed to load CSV. Please check the file format.");
+      console.error("Failed to upload CSV:", error);
     } finally {
       setLoadingCSV(false);
-      if (csvFileInputRef.current) {
-        csvFileInputRef.current.value = "";
-      }
     }
   };
 
@@ -149,47 +151,103 @@ export default function OnboardingModal() {
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     {/* Mock Data */}
                     <button
-                      onClick={handleLoadMock}
-                      className={`p-2 rounded-md border-2 text-sm font-semibold transition-colors ${portfolio ? "bg-green-600 border-green-700 text-white shadow-inner" : "bg-white/60 border-green-800/30 hover:bg-white/80 text-green-900"}`}
+                      onClick={() => {
+                        setActiveMethod("mock");
+                        handleLoadMock();
+                      }}
+                      className={`p-2 rounded-md border-2 text-sm font-semibold transition-colors ${
+                        activeMethod === "mock" && portfolio
+                          ? "bg-green-100 border-green-600 text-green-900"
+                          : "bg-white/60 border-gray-300 hover:bg-gray-100 text-gray-700"
+                      }`}
                       disabled={isAnalyzing}
                     >
-                      {portfolio ? "Mock Loaded ✓" : "Use Mock Data"}
+                      {activeMethod === "mock" && portfolio
+                        ? "Mock Loaded ✓"
+                        : "Use Mock Data"}
                     </button>
 
                     {/* Questrade */}
-                    <button className="p-2 rounded-md border-2 bg-black/5 border-black/10 text-black/40 text-sm cursor-not-allowed">
+                    <button
+                      onClick={() => setActiveMethod("questrade")}
+                      className={`p-2 rounded-md border-2 text-sm font-semibold transition-colors
+                                ${
+                                  activeMethod === "questrade"
+                                    ? "bg-green-100 border-green-600 text-green-900"
+                                    : "bg-white/60 border-gray-300 hover:bg-gray-100 text-gray-700"
+                                }`}
+                      disabled={isAnalyzing}
+                    >
                       Questrade
                     </button>
-                    <div>
-                      <input
-                        ref={csvFileInputRef}
-                        type="file"
-                        accept=".csv"
-                        onChange={handleLoadCSV}
-                        className="hidden"
-                      />
+                    {/* Yahoo Finance CSV */}
+                    <input
+                      type="file"
+                      accept=".csv"
+                      onChange={handleLoadCSV}
+                      ref={csvFileInputRef}
+                      className="hidden"
+                    />
+                    <button
+                      onClick={() => setActiveMethod("csv")}
+                      onDoubleClick={() => csvFileInputRef.current?.click()}
+                      disabled={loadingCSV || isAnalyzing}
+                      className={`w-full p-2 rounded-md border-2 text-sm font-semibold transition-colors ${
+                        activeMethod === "csv"
+                          ? "bg-green-100 border-green-600 text-green-900"
+                          : "bg-white/60 border-gray-300 hover:bg-gray-100 text-gray-700"
+                      }`}
+                    >
+                      {loadingCSV ? (
+                        <div>Loading...</div>
+                      ) : (
+                        <div className="flex items-center justify-center">
+                          Upload CSV
+                          <Upload className="w-4 h-4 pl-1" />
+                        </div>
+                      )}
+                    </button>
+                  </div>
+                  {/* Dynamic Contextual Area Below Buttons */}
+                  <div className="mt-4">
+                    {/* Mock Content */}
+                    {activeMethod === "mock" && (
+                      <p className="text-sm text-zinc-900 italic">
+                        * This is a mock profile for testing, manual stock
+                        adding will be implemented soon!
+                      </p>
+                    )}
 
-                      {/* Yahoo Finance CSV */}
-                      <button
-                        onClick={() => csvFileInputRef.current?.click()}
-                        disabled={loadingCSV || isAnalyzing}
-                        className={`w-full p-2 rounded-md border-2 text-sm font-semibold transition-colors ${
-                          loadingCSV
-                            ? "bg-blue-100 border-blue-400 text-blue-800"
-                            : portfolio
-                              ? "bg-green-600 border-green-700 text-white shadow-inner"
-                              : "bg-white/60 border-green-800/30 hover:bg-white/80 text-green-900"
-                        }`}
-                      >
-                        {loadingCSV ? (
-                          <div>Loading...</div>
-                        ) : (
-                          <div className="flex items-center justify-center">
-                            Upload CSV <Upload className="w-4 h-4 pl-1" />
-                          </div>
-                        )}
-                      </button>
-                    </div>
+                    {/* Questrade Content */}
+                    {activeMethod === "questrade" && (
+                      <div className="flex flex-row gap-2">
+                        <p className="text-sm text-zinc-700">
+                          Questrade Session Key:
+                        </p>
+                        <div className="flex gap-2 w-full">
+                          <input
+                            type="text"
+                            placeholder="Session Key..."
+                            value={QuestradeToken}
+                            onChange={(e) => setQuestradeToken(e.target.value)}
+                            disabled={loadingQuestrade || isAnalyzing}
+                            className="flex-1 p-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-green-500"
+                          />
+                        </div>
+                      </div>
+                    )}
+                    {/* CSV Yahoo Finance Content */}
+                    {activeMethod === "csv" && (
+                      <div className="flex flex-col gap-3">
+                        <p className="text-sm text-zinc-900 italic">
+                          In Yahoo Finance, navigate to{" "}
+                          <strong>"My Portfolio,"</strong> open your specific
+                          portfolio, and click the <strong>"Download"</strong>{" "}
+                          icon and import it here. Double click the button to
+                          upload file!
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
 

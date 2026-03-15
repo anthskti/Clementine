@@ -3,7 +3,7 @@ import Sign from "@/components/home/Sign";
 
 export default function Home() {
   return (
-    <div className="relative flex items-center justify-around min-h-screen bg-zinc-50">
+    <div className="relative flex items-center justify-around h-screen overflow-hidden bg-zinc-50">
       {/* Background Shed */}
       <Image
         src="/assets/home/homepage.jpg"

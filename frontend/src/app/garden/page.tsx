@@ -121,8 +121,8 @@ export default function GardenPage() {
             <Image
               src="/assets/photos/closed_book.png"
               alt="Open Analysis"
-              width={220}
-              height={220}
+              width={200}
+              height={200}
             />
           </button>
         </>

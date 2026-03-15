@@ -14,7 +14,7 @@ export default function Header() {
   const router = useRouter();
   return (
     <div className="fixed top-0 left-0 w-full z-20 transition-all duration-300">
-      <div className="flex items-center justify-between p-4">
+      <div className="max-w-[95%] mx-auto flex items-center justify-between px-6 py-3">
         {/* Logo + Music */}
         <div className="flex justify-around">
           {/* <Image
@@ -24,24 +24,28 @@ export default function Header() {
             height={80}
             className="object-cover"
           /> */}
+
           <MusicPlayer />
         </div>
         {/* Navigation */}
         <div>
-          <div className="flex items-center justify-between px-4">
-            <div className="space-x-6">
-              {navItems.map((item) => {
-                return (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    className="text-black hover:text-gray-700"
-                  >
-                    {item.name}
-                  </Link>
-                );
-              })}
-            </div>
+          <div className="flex items-center gap-x-6">
+            {navItems.map((item) => {
+              const isActive = path === item.href;
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={`relative text-sm font-medium transition-colors duration-300 py-2 ${
+                    isActive
+                      ? "text-green-700"
+                      : "text-gray-600 hover:text-green-600"
+                  }`}
+                >
+                  {item.name}
+                </Link>
+              );
+            })}
           </div>
         </div>
       </div>
