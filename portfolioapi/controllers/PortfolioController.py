@@ -24,14 +24,31 @@ async def add_portfolio(body: PortfolioInput):
 async def add_mock_portfolio():
     """Return a hardcoded mock portfolio for development and demos."""
     mock = {
-        "portfolio_value": 8200,
-        "currency": "CAD",
-        "positions": [
-            {"symbol": "VOO", "weight": 0.55, "market_value": 4510},
-            {"symbol": "AAPL", "weight": 0.27, "market_value": 2214},
-            {"symbol": "NVDA", "weight": 0.18, "market_value": 1476},
-        ],
-    }
+    "portfolio_value": 15934.69,
+    "currency": "CAD",
+    "positions": [
+        {"symbol": "HNST", "weight": 0.0125, "market_value": 198.76},
+        {"symbol": "ONDS", "weight": 0.0084, "market_value": 133.36},
+        {"symbol": "COP-U.TO", "weight": 0.0142, "market_value": 226.30},
+        {"symbol": "LUNR", "weight": 0.0375, "market_value": 597.97},
+        {"symbol": "AMZN.NE", "weight": 0.0928, "market_value": 1478.40},
+        {"symbol": "VISA.NE", "weight": 0.0366, "market_value": 582.60},
+        {"symbol": "FBTC.TO", "weight": 0.0421, "market_value": 671.00},
+        {"symbol": "META.NE", "weight": 0.0326, "market_value": 520.05},
+        {"symbol": "MDA.TO", "weight": 0.0127, "market_value": 202.15},
+        {"symbol": "GOOG.NE", "weight": 0.0754, "market_value": 1201.00},
+        {"symbol": "WMT.NE", "weight": 0.0524, "market_value": 834.56},
+        {"symbol": "L.TO", "weight": 0.0391, "market_value": 622.90},
+        {"symbol": "XUU.TO", "weight": 0.1764, "market_value": 2811.48},
+        {"symbol": "VXC.TO", "weight": 0.1471, "market_value": 2344.64},
+        {"symbol": "ENB.TO", "weight": 0.0323, "market_value": 514.29},
+        {"symbol": "ASTS", "weight": 0.0762, "market_value": 1213.91},
+        {"symbol": "DUOL", "weight": 0.0174, "market_value": 276.55},
+        {"symbol": "NLR", "weight": 0.0232, "market_value": 369.05},
+        {"symbol": "DOL.TO", "weight": 0.0365, "market_value": 580.89},
+        {"symbol": "MSFT", "weight": 0.0348, "market_value": 554.84},
+    ],
+}
     return await portfolio_service.build_from_dict(mock)
 
 # CSV 

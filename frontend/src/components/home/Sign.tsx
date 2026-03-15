@@ -16,18 +16,19 @@ import {
   InvestmentHorizon,
 } from "@/types/survey";
 
-import { ChevronDown, X, Loader, Upload, Check } from "lucide-react";
+import { ChevronDown, Loader, Upload, Check } from "lucide-react";
 
-export default function OnboardingModal() {
+export default function Sign() {
   const router = useRouter();
 
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
 
+  // Staged Input States
   const [QuestradeToken, setQuestradeToken] = useState("");
   const [loadingQuestrade, setLoadingQuestrade] = useState(false);
-
   const [loadingCSV, setLoadingCSV] = useState(false);
+  const [csvFile, setCSVFile] = useState<File | null>(null);
+  const [csvFileName, setCSVFileName] = useState<string | null>(null);
   const csvFileInputRef = useRef<HTMLInputElement>(null);
 
   const [activeMethod, setActiveMethod] = useState<
@@ -42,59 +43,82 @@ export default function OnboardingModal() {
     income: 50000,
   });
 
-  const handleLoadMock = async () => {
-    try {
-      const data = await getMockPortfolio();
-      setPortfolio(data);
-    } catch (error) {
-      console.error(error);
-      alert("Failed to load mock data. Is the backend running?");
-    }
-  };
-
-  const handleLoadQuestrade = async () => {
-    if (!QuestradeToken) return;
-    setLoadingQuestrade(true);
-    try {
-      const data = await getQuestradePortfolio(QuestradeToken);
-      setPortfolio(data);
-    } catch (error) {
-      console.error(error);
-      alert("Failed to load Questrade portfolio. Make sure you're connected.");
-    } finally {
-      setLoadingQuestrade(false);
-    }
-  };
-  const handleLoadCSV = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Staging for when the analysis is submitted.
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    try {
-      setLoadingCSV(true);
-      const formData = new FormData();
-      formData.append("file", file); // To match the backend API
-    } catch (error) {
-      console.error("Failed to upload CSV:", error);
-    } finally {
-      setLoadingCSV(false);
-    }
+    setCSVFile(file);
+    setCSVFileName(file.name);
   };
 
+  // const handleLoadMock = async () => {
+  //   try {
+  //     const data = await getMockPortfolio();
+  //     setPortfolio(data);
+  //   } catch (error) {
+  //     console.error(error);
+  //     alert("Failed to load mock data. Is the backend running?");
+  //   }
+  // };
+
+  // const handleLoadQuestrade = async () => {
+  //   if (!QuestradeToken) return;
+  //   setLoadingQuestrade(true);
+  //   try {
+  //     const data = await getQuestradePortfolio(QuestradeToken);
+  //     setPortfolio(data);
+  //   } catch (error) {
+  //     console.error(error);
+  //     alert("Failed to load Questrade portfolio. Make sure you're connected.");
+  //   } finally {
+  //     setLoadingQuestrade(false);
+  //   }
+  // };
+  // const handleLoadCSV = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const file = e.target.files?.[0];
+  //   if (!file) return;
+  //   try {
+  //     setLoadingCSV(true);
+  //     const formData = new FormData();
+  //     formData.append("file", file); // To match the backend API
+  //     const data = await getCSVPortfolio(formData);
+  //     setPortfolio(data);
+  //   } catch (error) {
+  //     console.error("Failed to upload CSV:", error);
+  //   } finally {
+  //     setCSVFileName(file.name);
+  //     setLoadingCSV(false);
+  //   }
+  // };
+
   const handleSubmit = async () => {
-    if (!portfolio) {
-      alert("Please provide your portfolio data first.");
-      return;
-    }
-
     setIsAnalyzing(true);
+    let fetchedPortfolio: Portfolio | null = null;
+
     try {
-      // 1. Fetch analysis from Gemini backend
-      const analysis = await analyzePortfolio(portfolio, survey);
+      // Step 1: Fetch the portfolio based on the active method
+      if (activeMethod === "mock") {
+        fetchedPortfolio = await getMockPortfolio();
+      } else if (activeMethod === "questrade") {
+        if (!QuestradeToken) throw new Error("Missing Questrade Token");
+        fetchedPortfolio = await getQuestradePortfolio(QuestradeToken);
+      } else if (activeMethod === "csv") {
+        if (!csvFile) throw new Error("Missing CSV File");
+        const formData = new FormData();
+        formData.append("file", csvFile);
+        fetchedPortfolio = await getCSVPortfolio(formData);
+      } else {
+        throw new Error("No import method selected");
+      }
+      // Step 2: Analyze the fetched portfolio
+      const analysis = await analyzePortfolio(fetchedPortfolio, survey);
 
-      // 2. Save to session storage so the /garden page can pick it up
+      // Step 3. Save to session storage so the /garden page can pick it up
       sessionStorage.setItem("clementine_analysis", JSON.stringify(analysis));
-      sessionStorage.setItem("clementine_portfolio", JSON.stringify(portfolio));
-
-      // 3. Route to the book/garden page
+      sessionStorage.setItem(
+        "clementine_portfolio",
+        JSON.stringify(fetchedPortfolio),
+      );
       router.push("/garden");
     } catch (error) {
       console.error(error);
@@ -103,9 +127,14 @@ export default function OnboardingModal() {
     }
   };
 
+  const canAnalyze =
+    activeMethod === "mock" ||
+    (activeMethod === "questrade" && QuestradeToken.trim().length > 0) ||
+    (activeMethod === "csv" && csvFile !== null);
+
   return (
     // 1. Full screen background
-    <div className="relative p-2">
+    <div className="relative p-2 flex items-center justify-center h-full w-full">
       {/* 2. The Sign Container - This dictates the size and holds the background image */}
       {/* Background Sign Image */}
       <Image
@@ -151,61 +180,45 @@ export default function OnboardingModal() {
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     {/* Mock Data */}
                     <button
-                      onClick={() => {
-                        setActiveMethod("mock");
-                        handleLoadMock();
-                      }}
+                      onClick={() => setActiveMethod("mock")}
                       className={`p-2 rounded-md border-2 text-sm font-semibold transition-colors ${
-                        activeMethod === "mock" && portfolio
+                        activeMethod === "mock"
                           ? "bg-green-100 border-green-600 text-green-900"
                           : "bg-white/60 border-gray-300 hover:bg-gray-100 text-gray-700"
                       }`}
-                      disabled={isAnalyzing}
                     >
-                      {activeMethod === "mock" && portfolio
-                        ? "Mock Loaded ✓"
-                        : "Use Mock Data"}
+                      {activeMethod === "mock" ? "Mock Selected ✓" : "Mock"}
                     </button>
-
-                    {/* Questrade */}
                     <button
                       onClick={() => setActiveMethod("questrade")}
-                      className={`p-2 rounded-md border-2 text-sm font-semibold transition-colors
-                                ${
-                                  activeMethod === "questrade"
-                                    ? "bg-green-100 border-green-600 text-green-900"
-                                    : "bg-white/60 border-gray-300 hover:bg-gray-100 text-gray-700"
-                                }`}
-                      disabled={isAnalyzing}
+                      className={`p-2 rounded-md border-2 text-sm font-semibold transition-colors ${
+                        activeMethod === "questrade"
+                          ? "bg-green-100 border-green-600 text-green-900"
+                          : "bg-white/60 border-gray-300 hover:bg-gray-100 text-gray-700"
+                      }`}
                     >
                       Questrade
                     </button>
-                    {/* Yahoo Finance CSV */}
                     <input
                       type="file"
                       accept=".csv"
-                      onChange={handleLoadCSV}
                       ref={csvFileInputRef}
+                      onChange={handleFileSelect}
                       className="hidden"
                     />
                     <button
                       onClick={() => setActiveMethod("csv")}
                       onDoubleClick={() => csvFileInputRef.current?.click()}
-                      disabled={loadingCSV || isAnalyzing}
-                      className={`w-full p-2 rounded-md border-2 text-sm font-semibold transition-colors ${
+                      className={`p-2 rounded-md border-2 text-sm font-semibold transition-colors ${
                         activeMethod === "csv"
                           ? "bg-green-100 border-green-600 text-green-900"
                           : "bg-white/60 border-gray-300 hover:bg-gray-100 text-gray-700"
                       }`}
                     >
-                      {loadingCSV ? (
-                        <div>Loading...</div>
-                      ) : (
-                        <div className="flex items-center justify-center">
-                          Upload CSV
-                          <Upload className="w-4 h-4 pl-1" />
-                        </div>
-                      )}
+                      <div className="flex items-center justify-center">
+                        Upload CSV
+                        <Upload className="w-4 h-4 pl-1" />
+                      </div>
                     </button>
                   </div>
                   {/* Dynamic Contextual Area Below Buttons */}
@@ -220,7 +233,7 @@ export default function OnboardingModal() {
 
                     {/* Questrade Content */}
                     {activeMethod === "questrade" && (
-                      <div className="flex flex-row gap-2">
+                      <div className="flex flex-row gap-1">
                         <p className="text-sm text-zinc-700">
                           Questrade Session Key:
                         </p>
@@ -237,7 +250,7 @@ export default function OnboardingModal() {
                       </div>
                     )}
                     {/* CSV Yahoo Finance Content */}
-                    {activeMethod === "csv" && (
+                    {!csvFileName && activeMethod === "csv" && (
                       <div className="flex flex-col gap-3">
                         <p className="text-sm text-zinc-900 italic">
                           In Yahoo Finance, navigate to{" "}
@@ -246,6 +259,13 @@ export default function OnboardingModal() {
                           icon and import it here. Double click the button to
                           upload file!
                         </p>
+                      </div>
+                    )}
+                    {csvFileName && activeMethod === "csv" && (
+                      <div className="flex items-center gap-2 text-sm text-green-800 bg-green-100/50 p-2 rounded-md w-fit border border-green-200">
+                        <Check className="w-4 h-4 text-green-600" />
+                        <span className="font-medium">Attached:</span>{" "}
+                        {csvFileName}
                       </div>
                     )}
                   </div>
@@ -352,13 +372,11 @@ export default function OnboardingModal() {
               </div>
             )}
           </div>
-
-          {/* Footer */}
           {!isAnalyzing && (
             <div className="pt-4 mt-2 border-t border-green-800/20 flex justify-center">
               <button
                 onClick={handleSubmit}
-                disabled={!portfolio}
+                disabled={!canAnalyze}
                 className="w-full py-3 bg-green-700 text-white rounded-md font-bold shadow-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-green-800 hover:shadow-lg transition-all"
               >
                 Analyze My Garden

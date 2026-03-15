@@ -12,7 +12,7 @@ class CSVService:
         AAPL,2214,12,USD
     """
 
-    def parse(self, raw_csv: str) -> Portfolio:
+    async def parse(self, raw_csv: str) -> Portfolio:
         reader = csv.DictReader(io.StringIO(raw_csv))
         rows = list(reader)
 

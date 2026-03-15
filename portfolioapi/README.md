@@ -20,3 +20,5 @@ pip install -r req.txt
 ```bash
 uvicorn main:app --reload
 ```
+
+localhost:8000
