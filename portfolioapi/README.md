@@ -1,24 +1,27 @@
-# Backend Logic
+# Portfolio API
+This is a monolithic backend hosting Clementine, the finance assistant.
 
 ## Python Setup:
 
-1. Python Virtual Environment
-
+1. Make sure you have uv installed.
 ```bash
-python3.12 -m venv venv
-source venv/bin/activate
+homebrew install uv
 ```
 
-2. Install dependency
-
+2. Need to sync dependencies:
 ```bash
-pip install -r req.txt
+uv sync
 ```
 
-3. Run App
+3. Run Virtual Environment:
+```bash
+source .venv/bin/activate
+```
+
+4. Run App
 
 ```bash
-uvicorn main:app --reload
+uv run uvicorn main:app --reload
 ```
 
 localhost:8000

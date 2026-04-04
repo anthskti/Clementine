@@ -1,10 +1,13 @@
 import { Portfolio } from "@/types/portfolio";
+import { readApiError } from "@/lib/api-error";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 export const getMockPortfolio = async (): Promise<Portfolio> => {
   const res = await fetch(`${API_BASE}/portfolio/mock`, { method: "POST" });
-  if (!res.ok) throw new Error("Failed to fetch mock portfolio.");
+  if (!res.ok) {
+    throw new Error(await readApiError(res, "Failed to fetch mock portfolio."));
+  }
   return res.json();
 };
 
@@ -15,7 +18,9 @@ export const getCSVPortfolio = async (
     method: "POST",
     body: formData,
   });
-  if (!res.ok) throw new Error("Failed to fetch CSV portfolio.");
+  if (!res.ok) {
+    throw new Error(await readApiError(res, "CSV upload failed."));
+  }
   return res.json();
 };
 
@@ -29,6 +34,10 @@ export const getQuestradePortfolio = async (
     },
     body: JSON.stringify({ refresh_token: token }),
   });
-  if (!res.ok) throw new Error("Failed to fetch questrade portfolio.");
+  if (!res.ok) {
+    throw new Error(
+      await readApiError(res, "Failed to fetch Questrade portfolio."),
+    );
+  }
   return res.json();
 };

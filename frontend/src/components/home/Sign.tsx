@@ -16,7 +16,7 @@ import {
   InvestmentHorizon,
 } from "@/types/survey";
 
-import { ChevronDown, Loader, Upload, Check } from "lucide-react";
+import { Loader, Upload, Check } from "lucide-react";
 
 export default function Sign() {
   const router = useRouter();
@@ -110,10 +110,19 @@ export default function Sign() {
       } else {
         throw new Error("No import method selected");
       }
-      // Step 2: Analyze the fetched portfolio
-      const analysis = await analyzePortfolio(fetchedPortfolio, survey);
+    } catch (error) {
+      console.error(error);
+      alert(
+        error instanceof Error
+          ? `Could not load portfolio: ${error.message}`
+          : "Could not load portfolio.",
+      );
+      setIsAnalyzing(false);
+      return;
+    }
 
-      // Step 3. Save to session storage so the /garden page can pick it up
+    try {
+      const analysis = await analyzePortfolio(fetchedPortfolio!, survey);
       sessionStorage.setItem("clementine_analysis", JSON.stringify(analysis));
       sessionStorage.setItem(
         "clementine_portfolio",
@@ -122,7 +131,11 @@ export default function Sign() {
       router.push("/garden");
     } catch (error) {
       console.error(error);
-      alert("Analysis failed. Please try again.");
+      alert(
+        error instanceof Error
+          ? `Analysis failed: ${error.message}`
+          : "Analysis failed. Please try again.",
+      );
       setIsAnalyzing(false);
     }
   };
@@ -207,8 +220,11 @@ export default function Sign() {
                       className="hidden"
                     />
                     <button
-                      onClick={() => setActiveMethod("csv")}
-                      onDoubleClick={() => csvFileInputRef.current?.click()}
+                      type="button"
+                      onClick={() => {
+                        setActiveMethod("csv");
+                        csvFileInputRef.current?.click();
+                      }}
                       className={`p-2 rounded-md border-2 text-sm font-semibold transition-colors ${
                         activeMethod === "csv"
                           ? "bg-green-100 border-green-600 text-green-900"
@@ -253,11 +269,9 @@ export default function Sign() {
                     {!csvFileName && activeMethod === "csv" && (
                       <div className="flex flex-col gap-3">
                         <p className="text-sm text-zinc-900 italic">
-                          In Yahoo Finance, navigate to{" "}
-                          <strong>"My Portfolio,"</strong> open your specific
-                          portfolio, and click the <strong>"Download"</strong>{" "}
-                          icon and import it here. Double click the button to
-                          upload file!
+                          In Yahoo Finance, open <strong>My Portfolio</strong>,
+                          use the <strong>Download</strong> icon, then click{" "}
+                          <strong>Upload CSV</strong> again to choose your file.
                         </p>
                       </div>
                     )}

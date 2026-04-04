@@ -6,11 +6,15 @@ from enum import Enum
 
 class Position(BaseModel):
     symbol: str
-    weight: float
+    weight: float  # Share of total portfolio by market value (0–1)
     market_value: float
     quantity: Optional[float] = None
     currency: Optional[str] = "CAD"
     description: Optional[str] = None
+    # Yahoo Finance CSV 
+    price: Optional[float] = None  # Last price per share
+    avg_cost_per_share: Optional[float] = None
+    total_gain_pct: Optional[float] = None
 
 class Portfolio(BaseModel):
     portfolio_value: float
