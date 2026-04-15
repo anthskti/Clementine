@@ -27,7 +27,7 @@ export const getCSVPortfolio = async (
 export const getQuestradePortfolio = async (
   token: string,
 ): Promise<Portfolio> => {
-  const res = await fetch(`${API_BASE}/portfolio/`, {
+  const res = await fetch(`${API_BASE}/portfolio`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

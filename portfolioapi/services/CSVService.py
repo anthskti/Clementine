@@ -119,7 +119,7 @@ class CSVService:
         positions = [
             Position(
                 symbol=p["symbol"],
-                weight=round(p["market_value"] / portfolio_value, 4) if portfolio_value else 0,
+                weight=round(p["market_value"] / portfolio_value, 2) if portfolio_value else 0,
                 market_value=round(p["market_value"], 2),
                 quantity=p["quantity"],
                 currency=p["currency"],

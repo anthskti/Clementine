@@ -15,7 +15,7 @@ class PortfolioService:
         accounts = await questrade.get_accounts(access_token, api_server)
         if not accounts:
             raise ValueError("No accounts found for this Questrade token.")
-        account_id = str(accounts[0]["number"])
+        account_id = str(accounts[1]["number"])
 
         # Getting account positions + balance for data analysis
         raw_positions = await questrade.get_positions(access_token, api_server, account_id)
@@ -36,7 +36,12 @@ class PortfolioService:
         for p in raw_positions:
             market_value = p.get("currentMarketValue", 0)
             qty = p.get("openQuantity")
+            total_cost = p.get("totalCost", 0)
+            avg_cost = p.get("averageEntryPrice")
+
             price = None
+            total_gain_pct = None
+
             if qty and market_value is not None:
                 try:
                     q = float(qty)
@@ -44,15 +49,26 @@ class PortfolioService:
                         price = round(float(market_value) / q, 6)
                 except (TypeError, ValueError):
                     pass
+
+            if total_cost and market_value is not None:
+                try:
+                    tc = float(total_cost)
+                    if tc != 0:
+                        total_gain_pct = (float(market_value) - tc) / tc
+                except (TypeError, ValueError):
+                    pass
+
             positions.append(
                 Position(
                     symbol=p.get("symbol", ""),
-                    weight=round(market_value / portfolio_value, 4) if portfolio_value else 0,
+                    weight=round(market_value / portfolio_value, 2) if portfolio_value else 0,
                     market_value=market_value,
                     quantity=qty,
                     currency=p.get("currency", "CAD"),
                     description=p.get("description"),
                     price=price,
+                    avg_cost_per_share=avg_cost,       
+                    total_gain_pct=total_gain_pct
                 )
             )
         # Sort by decending weight
