@@ -1,7 +1,9 @@
 from fastapi import APIRouter, HTTPException, UploadFile, File
-from models.portfolio import Portfolio, PortfolioInput
+from models.portfolio import Portfolio, PortfolioInput, ManualPortfolioInput
 from services.PortfolioService import PortfolioService
 from services.CSVService import CSVService
+
+import yfinance as yf
 
 router = APIRouter(prefix="/portfolio", tags=["portfolio"])
 portfolio_service = PortfolioService()
@@ -18,6 +20,33 @@ async def add_portfolio(body: PortfolioInput):
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"Questrade API error: {str(e)}")
+
+@router.post("/manual", response_model=Portfolio)
+async def add_manual_portfolio(body: ManualPortfolioInput):
+    """Manual user input, fetches live prices, and builds the portfolio."""
+    tickers = " ".join([p.symbol for p in body.positions])
+    live_data = yf.download(tickers, period="1d", group_by="ticker")
+
+    rows = []
+    for p in body.positions:
+        symbol = p.symbol.upper()
+
+        try:
+            if len(body.positions) == 1:
+                current_price = float(live_data['Close'].iloc[-1])
+            else:
+                current_price = float(live_data[symbol]['Close'].iloc[-1])
+        except Exception:
+            raise HTTPException(status_code=400, detail=f"Could not fetch price for {symbol}")
+        
+        rows.append({
+            "symbol": symbol,
+            "price": current_price,
+            "quantity": p.quantity,
+            "avg_cost_per_share": p.avg_cost
+        })
+
+    return portfolio_service.build_from_yahoo_minimal(rows)
 
 # Mock data — minimal Yahoo-style rows; weight and total_gain_pct are derived
 @router.post("/mock", response_model=Portfolio)

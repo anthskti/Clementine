@@ -21,11 +21,11 @@ class Portfolio(BaseModel):
     currency: str = "CAD"
     positions: list[Position]
 
-# Questrade Input Token
+# --- Questrade Input Token ---
 class PortfolioInput(BaseModel):
     refresh_token: str
 
-# Investor Survey
+# --- Investor Survey --- 
 
 class RiskTolerance(str, Enum):
     LOW = "low"
@@ -48,7 +48,7 @@ class AnalysisRequest(BaseModel):
     portfolio: Portfolio
     inputs: InvestorSurvey
 
-# Gemini Summary Response
+# --- Gemini Summary Response --- 
 
 class InvestorType(str, Enum):
     HOARDER = "hoarder"             # The seed hoarder which has too much cash and not enough investments
@@ -66,7 +66,7 @@ class PortfolioSummary(BaseModel):
     geographic_exposure: str
     risk_assessment: str
 
-# Garden Response
+# --- Garden Response ---
 class PlantType(str, Enum):
     TRIM = "time_to_trim"           # dominant, oversized position
     WEED = "weed"                   # bad investment (too high risk)
@@ -88,3 +88,13 @@ class PortfolioGarden(BaseModel):
 class FullAnalysis(BaseModel):
     summary: PortfolioSummary
     garden: PortfolioGarden
+
+# --- Needed for Manual ---
+
+class ManualPositionInput(BaseModel):
+    symbol: str
+    quantity: float
+    avg_cost: float
+
+class ManualPortfolioInput(BaseModel):
+    positions: list[ManualPositionInput]

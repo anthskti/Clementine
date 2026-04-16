@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import {
   getMockPortfolio,
+  getManualPortfolio,
   getCSVPortfolio,
   getQuestradePortfolio,
 } from "@/lib/portfolio";
@@ -17,6 +18,7 @@ import {
 } from "@/types/survey";
 
 import { Loader, Upload, Check } from "lucide-react";
+import ManualEntryModal, { ManualPosition } from "./ManualEntryModal";
 
 export default function Sign() {
   const router = useRouter();
@@ -30,9 +32,11 @@ export default function Sign() {
   const [csvFile, setCSVFile] = useState<File | null>(null);
   const [csvFileName, setCSVFileName] = useState<string | null>(null);
   const csvFileInputRef = useRef<HTMLInputElement>(null);
+  const [isManualModalOpen, setIsManualModalOpen] = useState(false);
+  const [manualData, setManualData] = useState<ManualPosition[]>([]);
 
   const [activeMethod, setActiveMethod] = useState<
-    "mock" | "questrade" | "csv" | null
+    "manual" | "questrade" | "csv" | null
   >(null);
 
   const [survey, setSurvey] = useState<InvestorSurvey>({
@@ -97,8 +101,10 @@ export default function Sign() {
 
     try {
       // Step 1: Fetch the portfolio based on the active method
-      if (activeMethod === "mock") {
-        fetchedPortfolio = await getMockPortfolio();
+      if (activeMethod === "manual") {
+        if (manualData.length === 0)
+          throw new Error("No manual stocks entered");
+        fetchedPortfolio = await getManualPortfolio(manualData);
       } else if (activeMethod === "questrade") {
         if (!QuestradeToken) throw new Error("Missing Questrade Token");
         fetchedPortfolio = await getQuestradePortfolio(QuestradeToken);
@@ -141,7 +147,7 @@ export default function Sign() {
   };
 
   const canAnalyze =
-    activeMethod === "mock" ||
+    (activeMethod === "manual" && manualData.length > 0) ||
     (activeMethod === "questrade" && QuestradeToken.trim().length > 0) ||
     (activeMethod === "csv" && csvFile !== null);
 
@@ -193,14 +199,19 @@ export default function Sign() {
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     {/* Mock Data */}
                     <button
-                      onClick={() => setActiveMethod("mock")}
+                      onClick={() => {
+                        setActiveMethod("manual");
+                        setIsManualModalOpen(true);
+                      }}
                       className={`p-2 rounded-md border-2 text-sm font-semibold transition-colors ${
-                        activeMethod === "mock"
+                        activeMethod === "manual"
                           ? "bg-green-100 border-green-600 text-green-900"
                           : "bg-white/60 border-gray-300 hover:bg-gray-100 text-gray-700"
                       }`}
                     >
-                      {activeMethod === "mock" ? "Mock Selected ✓" : "Mock"}
+                      {activeMethod === "manual" && manualData.length > 0
+                        ? "Stocks Added ✓"
+                        : "Manual Entry"}
                     </button>
                     <button
                       onClick={() => setActiveMethod("questrade")}
@@ -240,7 +251,7 @@ export default function Sign() {
                   {/* Dynamic Contextual Area Below Buttons */}
                   <div className="mt-4">
                     {/* Mock Content */}
-                    {activeMethod === "mock" && (
+                    {activeMethod === "manual" && (
                       <p className="text-sm text-zinc-900 italic">
                         * This is a mock profile for testing, manual stock
                         adding will be implemented soon!
@@ -399,6 +410,15 @@ export default function Sign() {
           )}
         </div>
       </div>
+      <ManualEntryModal
+        isOpen={isManualModalOpen}
+        isLoading={isAnalyzing}
+        onClose={() => setIsManualModalOpen(false)}
+        onSubmit={(data) => {
+          setManualData(data);
+          setIsManualModalOpen(false);
+        }}
+      />
     </div>
   );
 }
