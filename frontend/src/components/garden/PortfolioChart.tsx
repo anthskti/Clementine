@@ -103,7 +103,19 @@ export default function PortfolioChart({ portfolio }: PortfolioChartProps) {
   }
 
   return (
-    <div className="h-72 w-full">
+    <div className="relative flex items-center justify-between h-72 w-full">
+      <div className="absolute flex flex-col items-center justify-center pointer-events-none z-10">
+        <span className="text-xs font-bold text-green-800/60 uppercase tracking-widest">
+          Total
+        </span>
+        <span className="text-xl font-extrabold text-green-900 drop-shadow-sm">
+          $
+          {totalValue.toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })}
+        </span>
+      </div>
       <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Pie
