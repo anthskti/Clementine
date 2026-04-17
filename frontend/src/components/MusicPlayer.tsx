@@ -1,4 +1,10 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  ChangeEvent,
+  FormEvent,
+} from "react";
 
 const MusicPlayer = () => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -11,9 +17,14 @@ const MusicPlayer = () => {
   // Your music playlist
   const playlist = [
     {
-      title: "PLAY COLOR", // title
-      artist: "sweetch, soon", // artist names
-      src: "/music/play_color.mp3", // music file name
+      title: "A Nice Spring Evening", // title
+      artist: "Jordy Chandra", // artist names
+      src: "/music/nice_spring_evening.mp3", // music file name
+    },
+    {
+      title: "PLAY COLOR",
+      artist: "sweetch, soon",
+      src: "/music/play_color.mp3",
     },
   ];
 
@@ -30,6 +41,8 @@ const MusicPlayer = () => {
     const newTrack =
       currentTrack === 0 ? playlist.length - 1 : currentTrack - 1;
     setCurrentTrack(newTrack);
+    setCurrentTime(0);
+    setDuration(0);
     setIsPlaying(true);
   };
 
@@ -37,10 +50,12 @@ const MusicPlayer = () => {
     const newTrack =
       currentTrack === playlist.length - 1 ? 0 : currentTrack + 1;
     setCurrentTrack(newTrack);
+    setCurrentTime(0);
+    setDuration(0);
     setIsPlaying(true);
   };
 
-  const handleVolumeChange = (e: any) => {
+  const handleVolumeChange = (e: ChangeEvent<HTMLInputElement>) => {
     const newVolume = parseFloat(e.target.value);
     setVolume(newVolume);
     if (audioRef.current) {
@@ -48,24 +63,49 @@ const MusicPlayer = () => {
     }
   };
 
-  const handleTimeUpdate = () => {
-    if (audioRef.current) {
-      setCurrentTime(audioRef.current.currentTime);
+  const syncPlaybackState = () => {
+    if (!audioRef.current) {
+      return;
     }
+
+    const nextDuration = audioRef.current.duration;
+    const safeDuration = Number.isFinite(nextDuration) ? nextDuration : 0;
+    const safeCurrentTime =
+      safeDuration > 0
+        ? Math.min(audioRef.current.currentTime, safeDuration)
+        : audioRef.current.currentTime;
+
+    setDuration(safeDuration);
+    setCurrentTime(safeCurrentTime);
   };
 
   const handleLoadedMetadata = () => {
     if (audioRef.current) {
-      setDuration(audioRef.current.duration);
+      syncPlaybackState();
     }
   };
 
-  const handleProgressChange = (e: any) => {
-    const newTime = parseFloat(e.target.value);
-    setCurrentTime(newTime);
+  const handleDurationChange = () => {
+    if (audioRef.current) {
+      syncPlaybackState();
+    }
+  };
+
+  const setProgressTime = (newTime: number) => {
     if (audioRef.current) {
       audioRef.current.currentTime = newTime;
     }
+    setCurrentTime(newTime);
+  };
+
+  const handleProgressChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const newTime = parseFloat(e.target.value);
+    setProgressTime(newTime);
+  };
+
+  const handleProgressInput = (e: FormEvent<HTMLInputElement>) => {
+    const newTime = parseFloat(e.currentTarget.value);
+    setProgressTime(newTime);
   };
 
   const formatTime = (time: number) => {
@@ -84,12 +124,33 @@ const MusicPlayer = () => {
     }
   }, [currentTrack, isPlaying]);
 
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) {
+      return;
+    }
+
+    const handleTimeUpdate = () => syncPlaybackState();
+    const handleLoadedMetadata = () => syncPlaybackState();
+    const handleDurationChange = () => syncPlaybackState();
+
+    audio.addEventListener("timeupdate", handleTimeUpdate);
+    audio.addEventListener("loadedmetadata", handleLoadedMetadata);
+    audio.addEventListener("durationchange", handleDurationChange);
+
+    return () => {
+      audio.removeEventListener("timeupdate", handleTimeUpdate);
+      audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
+      audio.removeEventListener("durationchange", handleDurationChange);
+    };
+  }, [currentTrack]);
+
   return (
-    <div className="px-4 py-3 rounded-lg block z-50">
+    <div className="w-[400px] px-4 py-3 rounded-lg block z-50">
       <div className="flex flex-col space-y-3">
         <div className="flex items-center space-x-4">
           {/* Track Info */}
-          <div className="min-w-0 shrink-0">
+          <div className="min-w-0 flex-1">
             <h3 className="text-stone-900 font-semibold text-sm truncate">
               {playlist[currentTrack]?.title || "No Track"}
             </h3>
@@ -101,7 +162,7 @@ const MusicPlayer = () => {
           <div className="flex items-center space-x-2">
             <button
               onClick={playPrevious}
-              className="textstone-900] hover:text-stone-600 transition-colors"
+              className="text-stone-900 hover:text-stone-600 transition-colors"
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M8.445 14.832A1 1 0 0010 14v-2.798l5.445 3.63A1 1 0 0017 14V6a1 1 0 00-1.555-.832L10 8.798V6a1 1 0 00-1.555-.832l-6 4a1 1 0 000 1.664l6 4z" />
@@ -171,7 +232,7 @@ const MusicPlayer = () => {
               onChange={handleVolumeChange}
               className="w-16 h-1 bg-stone-900/80 rounded-lg appearance-none cursor-pointer slider"
               style={{
-                background: `linear-gradient(to right, #DBCEB4 0%, #DBCEB4 ${volume * 100}%, rgba(219, 206, 180, 0.3) ${volume * 100}%, rgba(219, 206, 180, 0.3) 100%)`,
+                background: `linear-gradient(to right, #000000 0%, #628A62 ${volume * 100}%, rgba(219, 206, 180, 0.3) ${volume * 100}%, rgba(219, 206, 180, 0.3) 100%)`,
                 WebkitAppearance: "none",
                 appearance: "none",
               }}
@@ -181,7 +242,7 @@ const MusicPlayer = () => {
 
         {/* Progress Bar */}
         <div className="flex items-center space-x-2">
-          <span className="text-stone-900 text-xs w-8">
+          <span className="text-stone-900 text-xs w-10 text-right tabular-nums">
             {formatTime(currentTime)}
           </span>
           <input
@@ -189,16 +250,17 @@ const MusicPlayer = () => {
             min="0"
             max={duration || 0}
             step="0.1"
-            value={currentTime}
+            value={duration > 0 ? Math.min(currentTime, duration) : 0}
             onChange={handleProgressChange}
+            onInput={handleProgressInput}
             className="flex-1 h-1 bg-stone-900/80 rounded-lg appearance-none cursor-pointer progress-slider"
             style={{
-              background: `linear-gradient(to right, #DBCEB4 0%, #DBCEB4 ${duration > 0 ? (currentTime / duration) * 100 : 0}%, rgba(219, 206, 180, 0.3) ${duration > 0 ? (currentTime / duration) * 100 : 0}%, rgba(219, 206, 180, 0.3) 100%)`,
+              background: `linear-gradient(to right, #000000 0%, #628A62 ${duration > 0 ? (currentTime / duration) * 100 : 0}%, rgba(219, 206, 180, 0.3) ${duration > 0 ? (currentTime / duration) * 100 : 0}%, rgba(219, 206, 180, 0.3) 100%)`,
               WebkitAppearance: "none",
               appearance: "none",
             }}
           />
-          <span className="text-stone-900 text-xs w-8">
+          <span className="text-stone-900 text-xs w-10 text-right tabular-nums">
             {formatTime(duration)}
           </span>
         </div>
@@ -208,8 +270,10 @@ const MusicPlayer = () => {
           ref={audioRef}
           src={playlist[currentTrack]?.src}
           onEnded={playNext}
-          onTimeUpdate={handleTimeUpdate}
           onLoadedMetadata={handleLoadedMetadata}
+          onDurationChange={handleDurationChange}
+          onPlay={() => setIsPlaying(true)}
+          onPause={() => setIsPlaying(false)}
           onLoadedData={() => {
             if (audioRef.current) {
               audioRef.current.volume = volume;
