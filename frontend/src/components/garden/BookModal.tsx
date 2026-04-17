@@ -1,14 +1,20 @@
 import React from "react";
 import Image from "next/image";
-import { FullAnalysis } from "@/types/portfolio";
+import { FullAnalysis, Portfolio } from "@/types/portfolio";
 import { GARDENER_TYPES, GARDENER_DESCRIPTION } from "@/types/garden";
+import PortfolioChart from "./PortfolioChart";
 import { X } from "lucide-react";
 
 interface BookModalProps {
   analysisData: FullAnalysis;
+  portfolio: Portfolio;
   onClose: () => void;
 }
-export default function BookModal({ analysisData, onClose }: BookModalProps) {
+export default function BookModal({
+  analysisData,
+  portfolio,
+  onClose,
+}: BookModalProps) {
   return (
     <div className="fixed inset-0 z-100 flex items-center justify-centers bg-black/60 backdrop-blur-sm">
       <div className="relative w-full min-h-screen">
@@ -56,10 +62,7 @@ export default function BookModal({ analysisData, onClose }: BookModalProps) {
               </p>
             </div>
             <div className="flex flex-col items-center justify-center">
-              <h2>Your Portfolio</h2>
-              <div className="w-48 h-48 rounded-full border-12 border-green-500 flex items-center justify-center text-green-800 font-bold bg-green-100">
-                %100
-              </div>
+              <PortfolioChart portfolio={portfolio} />
             </div>
           </div>
 

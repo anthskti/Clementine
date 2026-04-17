@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { FullAnalysis, Plant } from "@/types/portfolio";
+import { FullAnalysis, Portfolio, Plant } from "@/types/portfolio";
 import { FLOWER_TYPES, CLEMENTINE_ACTIONS } from "@/types/garden";
 import BookModal from "@/components/garden/BookModal";
 
@@ -16,6 +16,7 @@ export default function GardenPage() {
     left: number;
   } | null>(null);
   const [analysisData, setAnalysisData] = useState<FullAnalysis | null>(null);
+  const [portfolioData, setPortfolioData] = useState<Portfolio | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   // Method that get data from saved storage.
@@ -31,6 +32,13 @@ export default function GardenPage() {
       router.push("/");
     }
   }, [router]);
+
+  useEffect(() => {
+    const savedPortfolio = sessionStorage.getItem("clementine_portfolio");
+    if (savedPortfolio) {
+      setPortfolioData(JSON.parse(savedPortfolio));
+    }
+  }, []);
 
   const plantPositions = useMemo(() => {
     if (!analysisData || !analysisData.garden) return [];
@@ -188,10 +196,11 @@ export default function GardenPage() {
       )}
 
       {/* Book Modal*/}
-      {isBookOpen && (
+      {isBookOpen && portfolioData && (
         <div>
           <BookModal
             analysisData={analysisData}
+            portfolio={portfolioData}
             onClose={() => setIsBookOpen(false)}
           />
         </div>
