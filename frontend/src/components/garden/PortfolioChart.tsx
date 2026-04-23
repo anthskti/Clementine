@@ -139,7 +139,7 @@ export default function PortfolioChart({ portfolio }: PortfolioChartProps) {
           </Pie>
           <Tooltip
             wrapperStyle={{ zIndex: 100 }}
-            formatter={(value: number) => {
+            formatter={(value: any) => {
               const percent = ((value / totalValue) * 100).toFixed(1);
               const formattedValue = value.toLocaleString(undefined, {
                 minimumFractionDigits: 2,
