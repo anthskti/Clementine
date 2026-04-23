@@ -67,7 +67,7 @@ export default function BookModal({
           </div>
 
           {/* Right Page Summary + Highlights of Sections */}
-          <div className="flex flex-col w-[40%] mr-[15%] h-[85%] pb-[12%] pl-[1.5%] items-center justify-center">
+          <div className="flex flex-col w-[40%] mr-[15%] h-[85%] pb-[12%] pl-[1.5%] pt-10 items-center justify-center">
             <h2 className="text-2xl font-bold tracking-wide">Garden Summary</h2>
             {/* Diversification, Risk Assessment, Geographic Exposure */}
             <div className="space-y-4 text-sm overflow-y-auto pr-4">

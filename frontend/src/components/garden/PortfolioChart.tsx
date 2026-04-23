@@ -103,7 +103,7 @@ export default function PortfolioChart({ portfolio }: PortfolioChartProps) {
   }
 
   return (
-    <div className="relative flex items-center justify-between h-72 w-full">
+    <div className="relative flex items-center justify-center h-72 w-full">
       <div className="absolute flex flex-col items-center justify-center pointer-events-none z-10">
         <span className="text-xs font-bold text-green-800/60 uppercase tracking-widest">
           Total
@@ -138,6 +138,7 @@ export default function PortfolioChart({ portfolio }: PortfolioChartProps) {
             ))}
           </Pie>
           <Tooltip
+            wrapperStyle={{ zIndex: 100 }}
             formatter={(value: number) => {
               const percent = ((value / totalValue) * 100).toFixed(1);
               const formattedValue = value.toLocaleString(undefined, {

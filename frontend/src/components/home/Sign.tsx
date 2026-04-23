@@ -179,14 +179,16 @@ export default function Sign() {
           <div className="pb-3 border-b border-green-800/20 shrink-0">
             {/* Loading */}
             {isAnalyzing ? (
-              <div className="flex flex-col items-center justify-center h-full text-center">
-                <Loader className="animate-spin w-12 h-12 text-green-700" />
+              <div className="flex flex-col items-center justify-center h-full text-center pt-6">
                 <h3 className="text-xl font-bold text-green-900">
                   Clementine analysis incoming!!!
                 </h3>
                 <p className="text-green-800 font-medium">
                   Reviewing your garden. This takes about 10-15 seconds.
                 </p>
+                <div className="pt-20">
+                  <Loader className="animate-spin w-15 h-15 text-green-900" />
+                </div>
               </div>
             ) : (
               // Survey x Input
@@ -253,8 +255,7 @@ export default function Sign() {
                     {/* Mock Content */}
                     {activeMethod === "manual" && (
                       <p className="text-sm text-zinc-900 italic">
-                        * This is a mock profile for testing, manual stock
-                        adding will be implemented soon!
+                        * Manual input your stocks, shares, and average cost!
                       </p>
                     )}
 
