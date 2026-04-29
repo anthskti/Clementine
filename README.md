@@ -33,3 +33,5 @@ These include:\
 • The healthy gardener who has a balanced, healthy portfolio\
 • The experimental gardener who is invested heavy into speculative stocks\
 • The overwaterer who has too much invested in their top five stock holdings
+## DISCLAIMER
+This project is for educational and informational purposes only and does not constitute financial or investment advice.
