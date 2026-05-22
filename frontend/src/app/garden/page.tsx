@@ -27,9 +27,6 @@ export default function GardenPage() {
       const analysis = JSON.parse(savedAnalysis);
       setAnalysisData(analysis);
       setIsLoading(false);
-    } else {
-      // If no data is found, send them back
-      router.push("/");
     }
   }, [router]);
 
